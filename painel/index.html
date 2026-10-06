@@ -2746,10 +2746,11 @@
   <div class="login-container">
     <div class="login-header">
       <div class="login-logo">
-        <img src="assets/pethub-logo.jpg" alt="PETHUB">
+        <img src="../assets/pethub-logo.jpg" alt="PETHUB">
       </div>
       <h1>PETHUB · Painel Staff</h1>
       <p>Selecione seu perfil de acesso para continuar</p>
+      <p style="margin-top:8px;"><a href="../" style="color:inherit;opacity:.8;font-size:13px;">← Voltar ao site</a></p>
     </div>
 
     <div class="role-grid">
@@ -2817,7 +2818,7 @@
       <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
     </button>
     <div class="top-nav-logo">
-      <div class="lm"><img src="assets/pethub-logo.jpg" alt="PETHUB"></div>
+      <div class="lm"><img src="../assets/pethub-logo.jpg" alt="PETHUB"></div>
       <div class="info">
         <div class="nm">PETHUB · Staff</div>
         <div class="sub" id="navAreaLabel">Petshop</div>
@@ -2863,6 +2864,18 @@
      ============================================================ -->
 <div id="moduleTemplates" style="display:none;">
 
+  <!-- Solicitações feitas pelos clientes no site (renderizado por online.js) -->
+  <div data-module="online-inbox" class="module-page">
+    <div class="module-header">
+      <h2><span class="ico">🌐</span>Solicitações Online</h2>
+      <div class="actions">
+        <a class="btn-secondary" href="../" target="_blank" style="text-decoration:none;">Abrir site do cliente ↗</a>
+        <button class="btn-secondary" data-online-acao="limpar">Limpar demonstração</button>
+      </div>
+    </div>
+    <div id="onlineInboxRoot"></div>
+  </div>
+
   <!-- ============ PETHUB — VMS RADAR ============ -->
   <div data-module="vms-radar" class="module-page">
     <div class="module-header">
@@ -2889,7 +2902,7 @@
         <div class="vms-orb-row">
           <div class="vms-orb dog" id="vmsHoloOrb" aria-label="Holograma realista do pet com mapa de calor">
             <div class="vms-holo-real">
-              <img class="vms-holo-img" id="vmsHoloImg" src="assets/hologram-dog-realistic.png" alt="Holograma realista de cachorro com mapa de calor">
+              <img class="vms-holo-img" id="vmsHoloImg" src="../assets/hologram-dog-realistic.png" alt="Holograma realista de cachorro com mapa de calor">
             </div>
           </div>
           <div class="vms-score-list">
@@ -2987,7 +3000,7 @@
         </div>
         <div class="vms-orb cat" id="vmsVetHoloOrb" aria-label="Holograma central do pet selecionado">
           <div class="vms-holo-real">
-            <img class="vms-holo-img" id="vmsVetHoloImg" src="assets/hologram-cat-realistic.png" alt="Holograma realista de gato com mapa de calor">
+            <img class="vms-holo-img" id="vmsVetHoloImg" src="../assets/hologram-cat-realistic.png" alt="Holograma realista de gato com mapa de calor">
           </div>
         </div>
         <div class="vms-score-list" style="width:min(100%,520px);">
@@ -3115,7 +3128,7 @@
         </div>
         <div class="vms-orb dog" id="vmsCheckHoloOrb" aria-label="Holograma central para check-in">
           <div class="vms-holo-real">
-            <img class="vms-holo-img" id="vmsCheckHoloImg" src="assets/hologram-dog-realistic.png" alt="Holograma realista de cachorro com mapa de calor">
+            <img class="vms-holo-img" id="vmsCheckHoloImg" src="../assets/hologram-dog-realistic.png" alt="Holograma realista de cachorro com mapa de calor">
           </div>
         </div>
         <div class="vms-score-list" style="width:min(100%,520px);">
@@ -11023,7 +11036,7 @@
     const kicker = document.getElementById('vmsPetKicker');
     const isCat = species === 'cat';
     if (img) {
-      img.src = isCat ? 'assets/hologram-cat-realistic.png' : 'assets/hologram-dog-realistic.png';
+      img.src = isCat ? '../assets/hologram-cat-realistic.png' : '../assets/hologram-dog-realistic.png';
       img.alt = isCat ? 'Holograma realista de gato com mapa de calor' : 'Holograma realista de cachorro com mapa de calor';
     }
     if (orb) {
@@ -11042,7 +11055,7 @@
     const kicker = document.getElementById(prefix + 'PetKicker');
     const isCat = species === 'cat';
     if (img) {
-      img.src = isCat ? 'assets/hologram-cat-realistic.png' : 'assets/hologram-dog-realistic.png';
+      img.src = isCat ? '../assets/hologram-cat-realistic.png' : '../assets/hologram-dog-realistic.png';
       img.alt = isCat ? 'Holograma realista de gato com mapa de calor' : 'Holograma realista de cachorro com mapa de calor';
     }
     if (orb) {
@@ -19376,7 +19389,7 @@
     closeContagem();
   };
 
-  const ORC_LOGO = 'assets/pethub-logo.jpg';
+  const ORC_LOGO = '../assets/pethub-logo.jpg';
   // ============================================================
   // GERADOR DE ORÇAMENTO (consulta · banho · produtos)
   // ============================================================
@@ -20065,5 +20078,7 @@
 </script>
 
 
+<script src="../assets/pethub-store.js"></script>
+<script src="online.js"></script>
 </body>
 </html>

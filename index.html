@@ -4854,6 +4854,7 @@
         <a class="social-btn" href="#" aria-label="YouTube">▶</a>
         <a class="social-btn" href="https://wa.me/5511955552020" target="_blank" aria-label="WhatsApp">💬</a>
       </div>
+      <p style="margin-top:14px;font-size:12px;"><a href="painel/" style="color:inherit;opacity:.75;text-decoration:underline;">🔒 Área da equipe</a></p>
     </footer>
   </div>
 
@@ -6493,6 +6494,10 @@
           </div>
 
           <div class="t-page" id="tp-upcoming">
+            <div class="t-panel" id="onlineReqPanel" style="display:none;margin-bottom:18px;">
+              <div class="t-panel-head"><div><div class="t-panel-title">Solicitações feitas pelo site</div><div class="t-panel-sub">O status é atualizado pela nossa equipe</div></div></div>
+              <div class="appt-list" id="onlineReqList"></div>
+            </div>
             <div class="next-appt-grid">
               <div class="next-appt petshop">
                 <div class="na-head"><span class="na-ico">🛁</span> Próximo no Petshop</div>
@@ -9720,6 +9725,7 @@ Próximas considerações:
 </div>
 
 
+<script src="assets/pethub-store.js"></script>
 <script>
   // =================== STATE ===================
   const state = {
@@ -9922,6 +9928,7 @@ Próximas considerações:
     if(!p1 || p1.length < 8){ alert('A senha precisa ter ao menos 8 caracteres.'); return; }
     if(p1 !== p2){ alert('As senhas não coincidem.'); return; }
     if(!terms){ alert('É preciso aceitar os Termos para continuar.'); return; }
+    PetHubStore.add('clientes', { nome: name, email, telefone: phone, origem: 'site' });
     // Cadastro "feito" — entra direto na área do tutor
     document.getElementById('tutorSignup').style.display = 'none';
     document.getElementById('tutorLogin').style.display = 'none';
@@ -10045,6 +10052,7 @@ Próximas considerações:
     const target = document.getElementById('tp-' + id);
     if(target) target.classList.add('active');
     if(id === 'pedidos') renderPedidos();
+    if(id === 'upcoming') renderOnlineReqs();
     document.querySelectorAll('.tsb-item').forEach(i => {
       i.classList.toggle('active', i.dataset.tpage === id);
     });
@@ -10869,6 +10877,16 @@ Próximas considerações:
     const d = state.date;
     const dateStr = `${d.day} de ${monthNames[d.month]} de ${d.year}, às ${state.slot}`;
 
+    // Envia a solicitação para o painel staff
+    PetHubStore.add('consultas', {
+      tutor: name, telefone: phone, pet, especie: species,
+      modalidade: state.modality, especialidade: state.spec,
+      vet: state.vet.name,
+      dia: d.day, mes: d.month, ano: d.year, hora: state.slot,
+      pagamento: state.payment, total: state.total,
+      status: 'pendente'
+    });
+
     document.getElementById('videoNote').textContent = state.modality === 'video' 
       ? 'O link da chamada de vídeo será enviado 10 minutos antes do horário.' 
       : 'Aguardamos você na clínica!';
@@ -11355,7 +11373,7 @@ Próximas considerações:
   let selectedDelivery = 'retirada';
   let shopPayment = 'pix';
   let shopInstallments = 12;
-  let orders = [];
+  let orders = PetHubStore.list('pedidos');
   let ckOrderPlaced = false;
 
   function goShop(){
@@ -11561,7 +11579,8 @@ Próximas considerações:
       if(!ckOrderPlaced){
         ckOrderPlaced = true;
         const d = new Date();
-        orders.unshift({
+        PetHubStore.add('pedidos', {
+          tutor: 'Maria',
           num: '#PED-' + String(Math.floor(Math.random()*9000)+1000),
           date: d.toLocaleDateString('pt-BR') + ' · ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),
           items: cart.map(function(it){ return {qty:it.qty,name:it.name,brand:it.brand,price:it.price}; }),
@@ -11570,6 +11589,7 @@ Próximas considerações:
           delivery: selectedDelivery, delLabel: delMap[selectedDelivery].lbl, delTime: delMap[selectedDelivery].time,
           statusIdx: 0
         });
+        orders = PetHubStore.list('pedidos');
         renderPedidos();
       }
       const cur = orders[0];
@@ -11734,11 +11754,7 @@ Próximas considerações:
         + '</div>';
     }).join('');
   }
-  function trackStepsFor(o){
-    return o.delivery === 'retirada'
-      ? ['Pedido confirmado','Em separação','Pronto para retirada','Retirado pelo tutor']
-      : ['Pedido confirmado','Em separação','Saiu para entrega','Entregue'];
-  }
+  function trackStepsFor(o){ return PetHubStore.etapasPedido(o); }
   let trackIdx = -1;
   function openTracking(i){ trackIdx = i; renderTracking(); document.getElementById('trackOverlay').classList.add('open'); document.body.style.overflow='hidden'; }
   function closeTracking(){ document.getElementById('trackOverlay').classList.remove('open'); document.body.style.overflow=''; }
@@ -11759,7 +11775,8 @@ Próximas considerações:
   function advanceTracking(){
     const o = orders[trackIdx]; if(!o) return;
     const steps = trackStepsFor(o);
-    if(o.statusIdx < steps.length-1) o.statusIdx++;
+    if(o.statusIdx < steps.length-1) PetHubStore.update('pedidos', o.id, { statusIdx: o.statusIdx + 1 });
+    orders = PetHubStore.list('pedidos');
     renderTracking(); renderPedidos();
   }
   function goMeusPedidos(){
@@ -11773,8 +11790,48 @@ Próximas considerações:
     showTPage('pedidos');
   }
 
+  // =================== SOLICITAÇÕES ONLINE (dados compartilhados com o painel) ===================
+  function escHtml(v){
+    return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function renderOnlineReqs(){
+    const panel = document.getElementById('onlineReqPanel');
+    const list = document.getElementById('onlineReqList');
+    if(!panel || !list) return;
+    const consultas = PetHubStore.list('consultas').map(c => ({
+      criadoEm: c.criadoEm, status: c.status, video: c.modalidade === 'video',
+      day: String(c.dia).padStart(2,'0'), mon: monthNamesShort[c.mes], tm: c.hora,
+      titulo: c.pet + ' · ' + c.especialidade + (c.modalidade === 'video' ? ' (📹 teleconsulta)' : ' (presencial)'),
+      meta: ['👨‍⚕️ ' + c.vet, '💰 ' + fmt(c.total)]
+    }));
+    const banhos = PetHubStore.list('banhos').map(b => ({
+      criadoEm: b.criadoEm, status: b.status, video: false,
+      day: '🛁', mon: b.data, tm: b.hora,
+      titulo: b.pet + ' · ' + b.servico,
+      meta: [b.transporte === 'levatraz' ? '🚐 Leva-e-traz' : '🏥 Retirada na clínica', '💰 ' + fmt(b.total)]
+    }));
+    const todos = consultas.concat(banhos).sort((a,b) => a.criadoEm < b.criadoEm ? 1 : -1);
+    panel.style.display = todos.length ? '' : 'none';
+    list.innerHTML = todos.map(r => {
+      const st = PetHubStore.STATUS[r.status] || PetHubStore.STATUS.pendente;
+      return '<div class="appt-row' + (r.video ? ' video' : '') + '">'
+        + '<div class="appt-date"><div class="day">' + escHtml(r.day) + '</div><div class="mon">' + escHtml(r.mon) + '</div><div class="tm">' + escHtml(r.tm) + '</div></div>'
+        + '<div class="appt-info"><h4>' + escHtml(r.titulo) + '</h4><div class="meta">' + r.meta.map(m => '<span>' + escHtml(m) + '</span>').join('') + '</div></div>'
+        + '<div class="appt-act"><span class="na-tag" style="background:' + st.cor + ';color:#fff;">' + st.rotulo + '</span></div>'
+        + '</div>';
+    }).join('');
+  }
+  PetHubStore.subscribe(function(){
+    orders = PetHubStore.list('pedidos');
+    renderPedidos();
+    if(document.getElementById('trackOverlay').classList.contains('open')) renderTracking();
+    renderOnlineReqs();
+  });
+
   // Init
   updateStepper();
+  renderPedidos();
+  renderOnlineReqs();
 
   /* ===================== PETHUB — PLANO ===================== */
   function openPop(){
@@ -11979,6 +12036,15 @@ Próximas considerações:
   function bathConfirm(){
     const lt = (bathState.transport === 'levatraz');
     bathState.wa = (document.getElementById('bathWa') || { checked:true }).checked;
+    // Envia a solicitação para o painel staff
+    PetHubStore.add('banhos', {
+      tutor: 'Maria', pet: bathState.pet, raca: bathState.petBr,
+      servico: bathState.service, preco: bathState.price,
+      data: bathState.date, hora: bathState.time,
+      transporte: bathState.transport, taxa: bathState.transportFee, endereco: bathState.address,
+      whatsapp: bathState.wa, total: bathState.price + bathState.transportFee,
+      status: 'pendente'
+    });
     document.getElementById('bathSuccessLine').innerHTML =
       'Recebemos a solicitação do banho do <b>' + bathState.pet + '</b> · ' + bathState.date + ' às ' + bathState.time + '.';
     resetWaDemo();
