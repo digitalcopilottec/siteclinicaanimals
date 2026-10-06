@@ -29,7 +29,14 @@
     return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
   function brl(v) { return 'R$ ' + Number(v || 0).toFixed(2).replace('.', ','); }
-  function tipos() { return VISAO[currentRole] || []; }
+  // Cada tipo de solicitação só existe se o plano de assinatura incluir o módulo
+  const TIPO_NO_PLANO = {
+    consultas: () => PetHubPlans.tem('clinica'),
+    banhos: () => PetHubPlans.tem('petshop'),
+    pedidos: () => PetHubPlans.tem('farmacia') || PetHubPlans.tem('loja-online'),
+    clientes: () => true
+  };
+  function tipos() { return (VISAO[currentRole] || []).filter(t => TIPO_NO_PLANO[t]()); }
 
   function pendentes() {
     return tipos().reduce((n, t) => {
