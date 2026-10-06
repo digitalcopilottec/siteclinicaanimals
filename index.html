@@ -2379,6 +2379,18 @@
     transition:all 0.2s;display:flex;align-items:center;gap:5px;
   }
   .nav-account-btn:hover{border-color:var(--leaf);color:var(--leaf);}
+  /* Acesso da equipe ao painel staff (/painel) */
+  .nav-links a.nav-staff-btn{text-decoration:none;color:white;font-size:12.5px;font-weight:700;}
+  .nav-links a.nav-staff-btn:hover{color:var(--leaf);}
+  .nav-staff-mobile{display:none;text-decoration:none;white-space:nowrap;}
+  @media (max-width:1024px){ .nav-staff-mobile{display:inline-flex;} }
+  .foot-staff-btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:10px 18px;border-radius:18px;border:1.5px solid rgba(255,255,255,0.3);
+    color:white;font-family:'Nunito';font-size:13px;font-weight:700;text-decoration:none;
+    transition:all 0.2s;
+  }
+  .foot-staff-btn:hover{border-color:var(--leaf);color:var(--leaf);}
 
   /* ============= AVATAR UPLOAD (foto perfil/pet) ============= */
   /* Wrapper genérico — usa-se em diferentes tamanhos */
@@ -4430,8 +4442,10 @@
         <a href="#contato">Contato</a>
         <button class="nav-account-btn" onclick="goShop()">🛒 Loja</button>
         <button class="nav-account-btn" onclick="goTutorLogin()">👤 Minha conta</button>
+        <a class="nav-account-btn nav-staff-btn" href="painel/">🔐 Login operacional</a>
         <button class="nav-cta" onclick="goBooking()">Agendar 📅</button>
       </div>
+      <a class="nav-account-btn nav-staff-mobile" href="painel/">🔐 Login operacional</a>
     </nav>
 
     <!-- HERO -->
@@ -4854,7 +4868,7 @@
         <a class="social-btn" href="#" aria-label="YouTube">▶</a>
         <a class="social-btn" href="https://wa.me/5511955552020" target="_blank" aria-label="WhatsApp">💬</a>
       </div>
-      <p style="margin-top:14px;font-size:12px;"><a href="painel/" style="color:inherit;opacity:.75;text-decoration:underline;">🔒 Área da equipe</a></p>
+      <a class="foot-staff-btn" href="painel/">🔐 Login operacional · Equipe PETHUB</a>
     </footer>
   </div>
 
